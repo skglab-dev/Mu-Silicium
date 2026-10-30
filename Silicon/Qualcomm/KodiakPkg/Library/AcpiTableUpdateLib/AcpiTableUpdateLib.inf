@@ -19,6 +19,7 @@
   UefiBootServicesTableLib
   AslUpdateLib
   MemoryMapHelperLib
+  IoLib
 
 [Protocols]
   gEfiChipInfoProtocolGuid

@@ -1,3 +1,4 @@
+#include <Library/IoLib.h>
 #include <Library/AslUpdateLib.h>
 #include <Library/AcpiTableUpdateLib.h>
 #include <Library/MemoryMapHelperLib.h>
@@ -149,4 +150,14 @@ UpdateAcpiTables ()
 
   // Reinstall DSDT Table
   ReinstallTable (DsdtTable, &DsdtHandle);
+
+  // Hardware Reset Pulse for Goodix GT9916 Touchscreen (GPIO 105)
+  // TLMM GPIO 105: 0x0F100000 + (105 * 0x1000) = 0x0F169000
+  // Offset 0x00: GPIO_CFG (Direction, pull, drive)
+  // Offset 0x04: GPIO_IN_OUT (Bit 1 = Output Value)
+  MmioWrite32 (0x0F169000, 0x000002C3); // Output Enable, Pull-Up, 8mA Drive
+  MmioWrite32 (0x0F169004, 0x00000000); // Drive Reset LOW
+  gBS->Stall (10000);                   // 10ms
+  MmioWrite32 (0x0F169004, 0x00000002); // Drive Reset HIGH
+  gBS->Stall (50000);                   // 50ms boot delay for on-chip flash
 }
